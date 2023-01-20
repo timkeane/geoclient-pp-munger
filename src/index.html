@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>geoclient-pp-munger</title>
+  <script src="munger.js"></script>
+</head>
+<body>
+  <input id="search">
+  <button onclick="geocode()">Search</button>
+  <script>
+    const doLogging = true
+    const geoclientCreds = window.location.search.substring(1)
+
+    geoclient.Munger.createInstance([
+      {
+        url: './nycc.json',
+        inEpsg: 'EPSG:2263',
+        idProp: 'CounDist',
+        geoClientProp: 'cityCouncilDistrict',
+        doLogging
+      },
+      {
+        url: 'https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_State_Assembly_Districts_Water_Included/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson',
+        inEpsg: 'EPSG:4326',
+        idProp: 'AssemDist',
+        geoClientProp: 'assemblyDistrict',
+        doLogging
+      }
+    ]).then(munger => window.munger = munger)
+
+    window.geocode = () => {
+      const input = document.getElementById('search')
+      fetch(`https://maps.nyc.gov/geoclient/v2/search.json?${geoclientCreds}&input=${input.value}`)
+      .then(response => {
+        response.json().then(geoclientResponse => {
+          geoclientResponse.results.forEach(geoclientResult => {
+            window.munger.munge(geoclientResult.response)
+          })
+        })
+      })
+    }
+
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Enter') window.geocode()
+    })
+  </script>
+</body>
+</html>
