@@ -33,7 +33,7 @@
       fetch(`https://maps.nyc.gov/geoclient/v2/search.json?${geoclientCreds}&input=${input.value}`)
       .then(response => {
         response.json().then(geoclientResponse => {
-          geoclientResponse.results.forEach(geoclientResult => {
+          geoclientResponse.results?.forEach(geoclientResult => {
             window.munger.munge(geoclientResult.response)
           })
         })
